@@ -2,6 +2,25 @@
 
 A macOS CLI tool for screenshots and OCR.
 
+## Quickstart
+
+```sh
+# Interactively select a screen/window to take a screenshot of
+neal sc
+
+# Screenshot a specific app + OCR in one shot — prints saved path then extracted text
+neal sc "Google Chrome" --no-interactive --ocr
+
+# Verify an window with title matching "Android Emulator" contains expected text — prints ✓/✗ per term, exits 0 (PASS) or 1 (FAIL)
+neal verify --title "Android Emulator" --expect "AssociatedBank"
+
+# List all running apps to find the right process name — prints numbered list of foreground processes
+neal sc --apps
+
+# OCR an existing image file — prints extracted text to stdout
+neal tess screenshot.png
+```
+
 ## Prerequisites
 
 - **macOS** (no cross-platform support)

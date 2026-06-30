@@ -7,8 +7,13 @@ description: Use when needing to verify an application is running and visible in
 
 ## Overview
 
-`neal` captures macOS application windows as screenshots and extracts text from images via OCR (Tesseract). The primary
-agent workflow is: screenshot a window → OCR the image → verify the content matches expectations.
+`neal` captures macOS application windows as screenshots and extracts text from images via OCR (Tesseract).
+
+IMPORTANT: Most common usage for agents:
+```shell
+neal verify --title "Android Emulator" --expect "<text that should be on login screen>"
+```
+
 
 ## When to Use
 

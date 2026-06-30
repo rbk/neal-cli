@@ -11,9 +11,12 @@ const extractText = async (filePath) => {
 };
 
 const extractTextFromImage = async (filePath) => {
-    console.log(`Starting conversion..${filePath}`);
+    console.log(`[neal] Running OCR`);
+    console.log(`[neal] File: ${path.resolve(filePath)}\n`)
     const text = await extractText(filePath);
-    console.log(text);
+    console.log(`--- OCR RESULT ---\n\n${text}\n\n--- OCR END ---`);
+    console.log(`[neal] Cleaning up eng.traineddata...`)
+    fs.unlinkSync(path.resolve('eng.traineddata'))
 };
 
 module.exports = { extractTextFromImage, extractText };
