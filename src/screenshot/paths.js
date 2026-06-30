@@ -12,6 +12,7 @@ function cacheDir() {
 function defaultOutputPath(app, win) {
     const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
     const normalized = `${app}-${win.title}-${timestamp}`
+        .replace(/[^\x20-\x7E]/g, '')   // strip non-ASCII chars
         .toLowerCase()
         .replace(/[/\\:*?"<>|]/g, '_')  // strip filesystem-unsafe chars
         .replace(/\s+/g, '-')           // spaces → hyphens
