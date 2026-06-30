@@ -1,3 +1,5 @@
+const path = require('path');
+
 /**
  * Structured output helpers.
  * JSON envelope is consistent across all commands.
@@ -19,4 +21,12 @@ function info(msg) {
     process.stderr.write(msg + '\n');
 }
 
-module.exports = { jsonOk, jsonError, info };
+/** Format a file path as a clickable OSC 8 link (iTerm2/modern terminals) when TTY, raw path otherwise. */
+function fileLink(filePath) {
+    if (!process.stdout.isTTY) return filePath;
+    const name = path.basename(filePath);
+    const url = `file://${path.resolve(filePath)}`;
+    return `\x1b]8;;${url}\x07${name}\x1b]8;;\x07`;
+}
+
+module.exports = { jsonOk, jsonError, info, fileLink };

@@ -3,7 +3,7 @@ const { filterByTitle } = require('../screenshot/windows/filter');
 const { captureWindow } = require('../screenshot/capture/window');
 const { captureFullScreen } = require('../screenshot/capture/fullscreen');
 const { extractText } = require('../tesseract');
-const { jsonOk, jsonError } = require('../output');
+const { jsonOk, jsonError, fileLink } = require('../output');
 
 async function verifyWindow(dest, expects, options, label) {
     const text = await extractText(dest);
@@ -14,7 +14,7 @@ async function verifyWindow(dest, expects, options, label) {
     const passed = results.every(r => r.found);
 
     if (!options.json) {
-        console.log(dest);
+        console.log(fileLink(dest));
         for (const r of results) {
             const icon = r.found ? '✓' : '✗';
             console.log(`  ${icon} "${r.term}"`);
