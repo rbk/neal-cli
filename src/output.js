@@ -22,9 +22,9 @@ function info(msg) {
 }
 
 /** Format a file path as a clickable OSC 8 link (iTerm2/modern terminals) when TTY, raw path otherwise. */
-function fileLink(filePath) {
+function fileLink(filePath, displayName) {
     if (!process.stdout.isTTY) return filePath;
-    const name = path.basename(filePath);
+    const name = displayName || path.basename(filePath);
     const url = `file://${path.resolve(filePath)}`;
     return `\x1b]8;;${url}\x07${name}\x1b]8;;\x07`;
 }

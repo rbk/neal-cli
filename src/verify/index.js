@@ -5,24 +5,33 @@ const { captureFullScreen } = require('../screenshot/capture/fullscreen');
 const { extractText } = require('../tesseract');
 const { jsonOk, jsonError, fileLink } = require('../output');
 
-async function verifyWindow(dest, expects, options, label) {
-    const text = await extractText(dest);
-    const results = expects.map(term => ({
+function verifyOcr(text, expects) {
+    return expects.map(term => ({
         term,
         found: text.toLowerCase().includes(term.toLowerCase()),
     }));
-    const passed = results.every(r => r.found);
+}
 
-    if (!options.json) {
-        console.log(fileLink(dest));
-        for (const r of results) {
-            const icon = r.found ? '✓' : '✗';
-            console.log(`  ${icon} "${r.term}"`);
+function formatJsonResults(windowResults) {
+    const entries = [];
+    for (const wr of windowResults) {
+        for (const r of wr.results) {
+            entries.push({
+                app: wr.app,
+                expectedText: r.term,
+                success: r.found,
+                imagePath: wr.screenshot,
+            });
         }
-        console.log(label ? `${passed ? 'PASS' : 'FAIL'} -> ${label}` : (passed ? 'PASS' : 'FAIL'));
     }
+    return JSON.stringify(entries, null, 2);
+}
 
-    return { screenshot: dest, results, passed };
+function printResult({ app, window: winTitle, screenshot, passed }) {
+    console.log(app);
+    console.log(fileLink(screenshot, `${winTitle} (View)`));
+    console.log(passed ? 'PASS' : 'FAIL');
+    console.log('');
 }
 
 async function verify(app, options) {
@@ -54,13 +63,17 @@ async function verify(app, options) {
         const windowResults = [];
         for (const m of matched) {
             const dest = await captureWindow(m.app, m.win, matched.length === 1 ? options.output : null);
-            const result = await verifyWindow(dest, expects, options, `${m.app} -> ${m.win.title}`);
-            windowResults.push({ ...result, app: m.app, window: m.win.title });
+            const text = await extractText(dest);
+            const results = verifyOcr(text, expects);
+            const passed = results.every(r => r.found);
+            const entry = { screenshot: dest, results, passed, app: m.app, window: m.win.title };
+            windowResults.push(entry);
+            if (!options.json) printResult(entry);
         }
 
         const allPassed = windowResults.every(r => r.passed);
         if (options.json) {
-            console.log(jsonOk({ windows: windowResults, passed: allPassed }));
+            console.log(formatJsonResults(windowResults));
         }
         if (!allPassed) process.exit(1);
         return;
@@ -68,6 +81,8 @@ async function verify(app, options) {
 
     // Single-target path: app provided, or no app and no title (full screen)
     let dest;
+    let winTitle = 'fullscreen';
+    let appName = app || 'fullscreen';
 
     if (!app) {
         dest = await captureFullScreen(options.output);
@@ -92,15 +107,21 @@ async function verify(app, options) {
         const win = windows.reduce((best, w) =>
             (w.width * w.height > best.width * best.height) ? w : best
         );
+        winTitle = win.title;
 
         dest = await captureWindow(app, win, options.output);
     }
 
-    const result = await verifyWindow(dest, expects, options, null);
+    const text = await extractText(dest);
+    const results = verifyOcr(text, expects);
+    const passed = results.every(r => r.found);
+
     if (options.json) {
-        console.log(jsonOk({ screenshot: result.screenshot, results: result.results, passed: result.passed }));
+        console.log(formatJsonResults([{ app: appName, window: winTitle, screenshot: dest, results, passed }]));
+    } else {
+        printResult({ app: appName, window: winTitle, screenshot: dest, passed });
     }
-    if (!result.passed) process.exit(1);
+    if (!passed) process.exit(1);
 }
 
 module.exports = { verify };
