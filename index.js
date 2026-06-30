@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 const { program } = require('commander');
 const {extractTextFromImage} = require("./src/tesseract");
-const {screenshot} = require("./src/screenshot");
+const {screenshot} = require("./src/screenshot/index");
 
 program
     .name('neal')
