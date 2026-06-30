@@ -17,6 +17,7 @@ program
 
 program
     .command('screenshot [app]')
+    .alias('sc')
     .description('Capture a screenshot of a macOS window.\n\nExamples:\n  neal screenshot --apps\n  neal screenshot "Google Chrome"\n  neal screenshot Safari --title "GitHub" -o gh.png\n  neal screenshot Slack --list')
     .option('-a, --apps', 'list running application names and exit')
     .option('-n, --no-interactive', 'disable interactive prompts (auto-pick largest window)')
